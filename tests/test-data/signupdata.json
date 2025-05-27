@@ -1,0 +1,9 @@
+{
+    "validUser": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "workEmail": "john.doe@email.com",
+      "password": "Pass123"
+    }
+  }
+  
