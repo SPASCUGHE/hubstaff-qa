@@ -11,6 +11,9 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    # Pre-installed browsers — avoids long/hanging `playwright install` on GitHub runners
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-jammy
     env:
       BASEURL: ${{ vars.BASEURL || 'https://hubstaff.com/' }}
       MAILSURPAPIKEY: ${{ secrets.MAILSURPAPIKEY }}
@@ -24,15 +27,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
-
       - name: Run Playwright tests
         run: npx playwright test
 
       - name: Upload JUnit report for QA Results Hub
         uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
+        continue-on-error: true
         with:
           name: junit-results
           path: reports/junit.xml
@@ -40,7 +41,8 @@ jobs:
 
       - name: Upload Playwright HTML report
         uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
+        continue-on-error: true
         with:
           name: playwright-report
           path: playwright-report/
