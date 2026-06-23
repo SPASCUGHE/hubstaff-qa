@@ -4,7 +4,13 @@ import { BasePage } from './models/basepage';
 import { SignupPage } from './models/signuppage';
 import signupData from './test-data/signupdata.json' assert { type: 'json' };
 
-const mailslurp = new MailSlurp({ apiKey: process.env.MAILSURPAPIKEY! })
+function getMailSlurp() {
+    const apiKey = process.env.MAILSURPAPIKEY;
+    if (!apiKey) {
+        throw new Error('MAILSURPAPIKEY is required in .env (see .env.example)');
+    }
+    return new MailSlurp({ apiKey });
+}
 
 test.describe('Sign Up', () => {
     let basePage: BasePage;
@@ -16,6 +22,7 @@ test.describe('Sign Up', () => {
     })
 
     test('Sign-up for the 14-day free trial', async ({page}) => {
+        const mailslurp = getMailSlurp();
         // initialize mailSurp to create a temporary index
         const inbox = await mailslurp.createInbox();
         const email = inbox.emailAddress;

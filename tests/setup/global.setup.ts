@@ -9,7 +9,24 @@ import { BasePage } from '../models/basepage';
 import signupData from '../test-data/signupdata.json' assert { type: 'json' };
 
 export default async function globalSetup(config: FullConfig) {
-    const mailslurp = new MailSlurp({ apiKey: process.env.MAILSURPAPIKEY! });
+    if (process.argv.includes('--list')) {
+        return;
+    }
+
+    if (!process.env.MAILSURPAPIKEY) {
+        try {
+            await fs.access('test-user.json');
+            console.log('MAILSURPAPIKEY not set — reusing existing test-user.json');
+            return;
+        } catch {
+            throw new Error(
+                'MAILSURPAPIKEY is required in .env (see .env.example). ' +
+                'Get a free key at https://www.mailslurp.com/',
+            );
+        }
+    }
+
+    const mailslurp = new MailSlurp({ apiKey: process.env.MAILSURPAPIKEY });
     const inbox = await mailslurp.createInbox();
     const email = inbox.emailAddress;
 

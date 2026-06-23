@@ -35,5 +35,18 @@ Generate playwright test report
 npm report
 ```
 
+## QA Results Hub integration
+
+Playwright writes JUnit XML to `reports/junit.xml`. GitHub Actions uploads it as the `junit-results` artifact for the QA Results Hub thesis MVP (`../qa-automation-hub`).
+
+See `../qa-automation-hub/docs/hubstaff-qa-integration.md` for connecting CI results to the dashboard.
+
+### GitHub Actions secrets
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `MAILSURPAPIKEY` | Yes | MailSlurp API key for signup flow |
+| `BASEURL` | No | Defaults to `https://hubstaff.com/` |
+
 ## Test results
 ![screenshot](./results.png)
