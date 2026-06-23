@@ -11,7 +11,6 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    # Pre-installed browsers — avoids long/hanging `playwright install` on GitHub runners
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-jammy
     env:
@@ -23,6 +22,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+
+      - name: Verify MailSlurp secret
+        run: |
+          if [ -z "$MAILSURPAPIKEY" ]; then
+            echo "::error::MAILSURPAPIKEY secret is not set."
+            echo "Go to Settings → Secrets and variables → Actions → New repository secret"
+            echo "Name: MAILSURPAPIKEY  Value: your key from https://www.mailslurp.com/"
+            exit 1
+          fi
+          echo "MAILSURPAPIKEY is configured."
 
       - name: Install dependencies
         run: npm ci

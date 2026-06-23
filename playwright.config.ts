@@ -17,7 +17,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
+  timeout: process.env.CI ? 180_000 : 60_000,
+  expect: {
+    timeout: process.env.CI ? 20_000 : 10_000,
+  },
   reporter: [
+    ['list'],
     ['html', { open: 'never' }],
     ['junit', { outputFile: 'reports/junit.xml' }],
     ...(process.env.CI ? [['github'] as const] : []),
@@ -30,8 +35,9 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    // Capture screenshot after each test failure.
     screenshot: 'only-on-failure',
+    actionTimeout: process.env.CI ? 30_000 : 15_000,
+    navigationTimeout: process.env.CI ? 45_000 : 30_000,
   },
 
   /* Configure projects for major browsers */

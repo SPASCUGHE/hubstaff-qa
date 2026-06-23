@@ -31,9 +31,11 @@ export class SignInPage {
 
     async login(email: string, password: string) {
         await this.page.goto('/');
+        await this.acceptCookiesIfVisible();
         await this.landingPageSignInBtn.click();
         await this.userEmail.fill(email);
         await this.userPassword.fill(password);
         await this.signInBtn.click();
+        await this.page.waitForURL(/app\.hubstaff\.com/, { timeout: 45_000 });
     }
 }

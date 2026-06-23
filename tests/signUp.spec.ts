@@ -13,6 +13,11 @@ function getMailSlurp() {
 }
 
 test.describe('Sign Up', () => {
+    test.skip(
+        !!process.env.CI,
+        'Sign-up is handled in global setup on CI to avoid duplicate slow flows',
+    );
+
     let basePage: BasePage;
     let signupPage: SignupPage;
 

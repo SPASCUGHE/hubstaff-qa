@@ -1,65 +1,83 @@
 import { chromium, FullConfig } from "@playwright/test";
 import MailSlurp from "mailslurp-client";
-import fs from 'fs/promises';
-import dotenv from 'dotenv';
+import fs from "fs/promises";
+import dotenv from "dotenv";
+
 dotenv.config();
 
+import { BasePage } from "../models/basepage";
+import signupData from "../test-data/signupdata.json" assert { type: "json" };
 
-import { BasePage } from '../models/basepage';
-import signupData from '../test-data/signupdata.json' assert { type: 'json' };
+export default async function globalSetup() {
+  if (process.argv.includes("--list")) {
+    return;
+  }
 
-export default async function globalSetup(config: FullConfig) {
-    if (process.argv.includes('--list')) {
-        return;
+  const isCi = !!process.env.CI;
+
+  if (!process.env.MAILSURPAPIKEY) {
+    if (isCi) {
+      throw new Error(
+        "MAILSURPAPIKEY GitHub secret is missing. " +
+          "Add it under repo Settings → Secrets and variables → Actions.",
+      );
     }
 
-    if (!process.env.MAILSURPAPIKEY) {
-        try {
-            await fs.access('test-user.json');
-            console.log('MAILSURPAPIKEY not set — reusing existing test-user.json');
-            return;
-        } catch {
-            throw new Error(
-                'MAILSURPAPIKEY is required in .env (see .env.example). ' +
-                'Get a free key at https://www.mailslurp.com/',
-            );
-        }
+    try {
+      await fs.access("test-user.json");
+      console.log("MAILSURPAPIKEY not set — reusing local test-user.json");
+      return;
+    } catch {
+      throw new Error(
+        "MAILSURPAPIKEY is required in .env (see .env.example). " +
+          "Get a free key at https://www.mailslurp.com/",
+      );
     }
+  }
 
-    const mailslurp = new MailSlurp({ apiKey: process.env.MAILSURPAPIKEY });
-    const inbox = await mailslurp.createInbox();
-    const email = inbox.emailAddress;
+  console.log("Creating confirmed test user via MailSlurp…");
+  const mailslurp = new MailSlurp({ apiKey: process.env.MAILSURPAPIKEY });
+  const inbox = await mailslurp.createInbox();
+  const email = inbox.emailAddress;
 
-    const browser = await chromium.launch();
-    const page = await browser.newPage();
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
 
-    const basePage = new BasePage(page);
-    const signupPage = basePage.signupPage;
-    const welcomePage = basePage.welcomePage;
+  const basePage = new BasePage(page);
+  const signupPage = basePage.signupPage;
+  const welcomePage = basePage.welcomePage;
 
-    // get test data and override workEmail with the mailSurp email
-    const user = { ...signupData.validUser, workEmail: email };
+  const user = { ...signupData.validUser, workEmail: email };
 
-    // fill in the signup form
-    await signupPage.signupFreeForFreeTrial(user.firstName, user.lastName, user.workEmail, user.password);
+  await signupPage.signupFreeForFreeTrial(
+    user.firstName,
+    user.lastName,
+    user.workEmail,
+    user.password,
+  );
 
-    // wait for email, check the subject and fetch the confirmation link
-    const confirmationEmail = await mailslurp.waitForLatestEmail(inbox.id, 30000);
-    const confirmationLink = confirmationEmail.body?.match(/https:\/\/account\.hubstaff\.com\/confirm_account\/[^\s"]+/)?.[0];
+  const confirmationEmail = await mailslurp.waitForLatestEmail(inbox.id, 60_000);
+  const confirmationLink = confirmationEmail.body?.match(
+    /https:\/\/account\.hubstaff\.com\/confirm_account\/[^\s"]+/,
+  )?.[0];
 
-    if (!confirmationLink) throw new Error('No confirmation link found.');
-    await page.goto(confirmationLink);
-    await page.waitForURL(signupPage.welcomeUrl, { timeout: 10000 });
-
-    await fs.writeFile(
-        'test-user.json',
-        JSON.stringify({ email, password: user.password }, null, 2)
-    );
-
-    console.log(`Test user created and confirmed: ${email}`);
-
-    await welcomePage.configureOrganizationDashboard();
-    console.log('Organization configured!');
-
+  if (!confirmationLink) {
     await browser.close();
+    throw new Error("No confirmation link found in MailSlurp inbox.");
+  }
+
+  await page.goto(confirmationLink);
+  await page.waitForURL(signupPage.welcomeUrl, { timeout: 30_000 });
+
+  await fs.writeFile(
+    "test-user.json",
+    JSON.stringify({ email, password: user.password }, null, 2),
+  );
+
+  console.log(`Test user created: ${email}`);
+
+  await welcomePage.configureOrganizationDashboard();
+  console.log("Organization configured.");
+
+  await browser.close();
 }

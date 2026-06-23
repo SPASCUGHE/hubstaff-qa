@@ -45,8 +45,10 @@ See `../qa-automation-hub/docs/hubstaff-qa-integration.md` for connecting CI res
 
 | Name | Required | Description |
 |------|----------|-------------|
-| `MAILSURPAPIKEY` | Yes | MailSlurp API key for signup flow |
+| `MAILSURPAPIKEY` | **Yes (CI)** | MailSlurp API key — [mailslurp.com](https://www.mailslurp.com/). Without it, CI fails immediately. |
 | `BASEURL` | No | Defaults to `https://hubstaff.com/` |
+
+Add `MAILSURPAPIKEY` under **Settings → Secrets and variables → Actions** in the GitHub repo.
 
 ## Test results
 ![screenshot](./results.png)
