@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 import MailSlurp from 'mailslurp-client';
-import { BasePage } from './models/basepage';
-import { SignupPage } from './models/signuppage';
-import signupData from './test-data/signupdata.json' assert { type: 'json' };
+import { BasePage } from '../models/basepage';
+import { SignupPage } from '../models/signuppage';
+import signupData from '../test-data/signupdata.json' assert { type: 'json' };
 
 function getMailSlurp() {
     const apiKey = process.env.MAILSURPAPIKEY;

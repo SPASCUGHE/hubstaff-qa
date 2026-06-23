@@ -14,41 +14,37 @@ Mailsurp - 3rd party service used for email confirmation
 
 ## Running the tests
 
-Clone the repository
-```bash
-git clone https://github.com/SPASCUGHE/hubstaff-qa
-```
-Install dependencies
+### Smoke tests (default — used in CI)
+
+Fast, reliable tests. No MailSlurp or Hubstaff login required.
+
 ```bash
 npm install
-```
-Install playwright browsers
-```bash
-npx playwright install
-```
-Run the tests
-```bash
+npx playwright install chromium
 npm test
 ```
-Generate playwright test report
+
+JUnit report: `reports/junit.xml`
+
+### Full Hubstaff E2E (optional, local only)
+
+Requires `.env` with `MAILSURPAPIKEY` and `BASEURL`.
+
 ```bash
-npm report
+cp .env.example .env
+# edit .env with your MailSlurp key
+npm run test:e2e
 ```
 
 ## QA Results Hub integration
 
-Playwright writes JUnit XML to `reports/junit.xml`. GitHub Actions uploads it as the `junit-results` artifact for the QA Results Hub thesis MVP (`../qa-automation-hub`).
+GitHub Actions runs **smoke tests** and uploads `junit-results` for the QA Results Hub dashboard (`../qa-automation-hub`).
 
-See `../qa-automation-hub/docs/hubstaff-qa-integration.md` for connecting CI results to the dashboard.
+See `../qa-automation-hub/docs/hubstaff-qa-integration.md` for sync instructions.
 
-### GitHub Actions secrets
+### GitHub Actions
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `MAILSURPAPIKEY` | **Yes (CI)** | MailSlurp API key — [mailslurp.com](https://www.mailslurp.com/). Without it, CI fails immediately. |
-| `BASEURL` | No | Defaults to `https://hubstaff.com/` |
-
-Add `MAILSURPAPIKEY` under **Settings → Secrets and variables → Actions** in the GitHub repo.
+No secrets required for smoke tests. Push to `main` and the workflow runs automatically.
 
 ## Test results
 ![screenshot](./results.png)

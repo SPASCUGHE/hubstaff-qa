@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { BasePage } from './models/basepage';
-import { SignInPage } from './models/signinpage';
+import { BasePage } from '../models/basepage';
+import { SignInPage } from '../models/signinpage';
 import fs from 'fs/promises';
-import { WelcomePage } from './models/welcomeage';
-import { SideBar } from './pageobjects/sideBar.po';
-import { ProjectManagementPage } from './pageobjects/projectManagement.po';
+import { WelcomePage } from '../models/welcomeage';
+import { SideBar } from '../pageobjects/sideBar.po';
+import { ProjectManagementPage } from '../pageobjects/projectManagement.po';
 
 const menuItemProjectManagement = "Project management";
 

@@ -9,13 +9,10 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 60
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-jammy
-    env:
-      BASEURL: ${{ vars.BASEURL || 'https://hubstaff.com/' }}
-      MAILSURPAPIKEY: ${{ secrets.MAILSURPAPIKEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -23,21 +20,11 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Verify MailSlurp secret
-        run: |
-          if [ -z "$MAILSURPAPIKEY" ]; then
-            echo "::error::MAILSURPAPIKEY secret is not set."
-            echo "Go to Settings → Secrets and variables → Actions → New repository secret"
-            echo "Name: MAILSURPAPIKEY  Value: your key from https://www.mailslurp.com/"
-            exit 1
-          fi
-          echo "MAILSURPAPIKEY is configured."
-
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Run smoke tests
+        run: npm test
 
       - name: Upload JUnit report for QA Results Hub
         uses: actions/upload-artifact@v4

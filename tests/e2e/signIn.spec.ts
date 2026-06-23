@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { BasePage } from './models/basepage';
-import { SignInPage } from './models/signinpage';
-import signupData from './test-data/signupdata.json' assert { type: 'json' };
+import { BasePage } from '../models/basepage';
+import { SignInPage } from '../models/signinpage';
+import signupData from '../test-data/signupdata.json' assert { type: 'json' };
 import fs from 'fs/promises';
-import { WelcomePage } from './models/welcomeage';
+import { WelcomePage } from '../models/welcomeage';
 
 
 test.describe('Sign In', () => {

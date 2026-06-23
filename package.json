@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
+    "test:e2e": "npx playwright test --config=playwright.e2e.config.ts",
     "report": "npx playwright show-report"
   },
   "keywords": [],
