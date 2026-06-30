@@ -1,50 +1,54 @@
 # hubstaff-qa
 
+Playwright E2E tests against the real Hubstaff marketing site and app.
 
 ## Prerequisites
-Create your own `.env` file in the main route and add the following:
+
+Create a `.env` file in the project root:
 
 ```bash
-BASEURL = 'hubstaff baseUrl'
-MAILSURPAPIKEY = 'api-key'
+BASEURL=https://hubstaff.com/
+MAILSURPAPIKEY=your_mailslurp_api_key
 ```
-Navigate to `https://www.mailslurp.com/` and create a free account and confirm.
-Copy the APIKEY that will be passed into .env file.
-Mailsurp - 3rd party service used for email confirmation
+
+Get a free MailSlurp API key at [mailslurp.com](https://www.mailslurp.com/) — used to create a confirmed test user before the suite runs.
 
 ## Running the tests
-
-### Smoke tests (default — used in CI)
-
-Fast, reliable tests. No MailSlurp or Hubstaff login required.
 
 ```bash
 npm install
 npx playwright install chromium
+cp .env.example .env
+# edit .env with your MailSlurp key
 npm test
 ```
 
+`global.setup.ts` creates `test-user.json` (or reuses it locally). Authenticated specs read that file to sign in.
+
 JUnit report: `reports/junit.xml`
 
-### Full Hubstaff E2E (optional, local only)
+## Test suites (`tests/e2e/`)
 
-Requires `.env` with `MAILSURPAPIKEY` and `BASEURL`.
-
-```bash
-cp .env.example .env
-# edit .env with your MailSlurp key
-npm run test:e2e
-```
+| Spec | Scenario |
+|------|----------|
+| `marketingHomepage.spec.ts` | Public marketing site — sign-in entry point (no auth) |
+| `signIn.spec.ts` | Sign in from marketing navigation |
+| `signUp.spec.ts` | Full sign-up flow with email confirmation (skipped on CI; setup handles signup) |
+| `dashboardNavigation.spec.ts` | Sidebar sections visible after login |
+| `addCreateProject.spec.ts` | Create a project in Project management |
+| `createPayments.spec.ts` | Create a one-time team payment in Financials |
 
 ## QA Results Hub integration
 
-GitHub Actions runs **smoke tests** and uploads `junit-results` for the QA Results Hub dashboard (`../qa-automation-hub`).
+GitHub Actions runs the **E2E suite** and uploads `junit-results` for the QA Results Hub dashboard (`../qa-automation-hub`).
 
-See `../qa-automation-hub/docs/hubstaff-qa-integration.md` for sync instructions.
+### GitHub Actions secrets
 
-### GitHub Actions
+| Secret | Required |
+|--------|----------|
+| `MAILSURPAPIKEY` | Optional — without it, marketing tests pass and authenticated tests fail (fine for demo) |
 
-No secrets required for smoke tests. Push to `main` and the workflow runs automatically.
+See `../qa-automation-hub/docs/hubstaff-qa-integration.md` for hub sync instructions.
 
 ## Test results
 ![screenshot](./results.png)
