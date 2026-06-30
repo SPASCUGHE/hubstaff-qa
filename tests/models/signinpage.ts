@@ -36,6 +36,6 @@ export class SignInPage {
         await this.userEmail.fill(email);
         await this.userPassword.fill(password);
         await this.signInBtn.click();
-        await this.page.waitForURL(/app\.hubstaff\.com/, { timeout: 45_000 });
+        await this.page.waitForURL(/app\.hubstaff\.com/, { timeout: 15_000 });
     }
 }
